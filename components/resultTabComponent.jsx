@@ -23,7 +23,7 @@ export default function ResultTabComponent(props) {
   const [adjustedBobAllocation, setAdjustedBobAllocation] = useState(adjustedWinnerBobAllocation);
   const [leastAliceAllocation, setLeastAliceAllocation] = useState(leastChangeAliceAllocation);
   const [leastBobAllocation, setLeastBobAllocation] = useState(leastChangeBobAllocation);
-
+  const [hoge, setHoge] = useState(0);
   useEffect(() => {
     const [adjustedWinnerAliceAllocation, adjustedWinnerBobAllocation] = makeBothAllocation(adjustedRepartition, allTasks);
     const [leastChangeAliceAllocation, leastChangeBobAllocation] = makeBothAllocation(leastRepartition, allTasks);
@@ -31,56 +31,80 @@ export default function ResultTabComponent(props) {
     setAdjustedBobAllocation(adjustedWinnerBobAllocation);
     setLeastAliceAllocation(leastChangeAliceAllocation);
     setLeastBobAllocation(leastChangeBobAllocation);
-  }, [adjustedRepartition, currentTaskRepartition]);
+  }, [adjustedRepartition, leastRepartition, hoge]);
 
   const changeRepartition = (person, taskName, tabNumber) => {
     let TaskRepartition = {}
     let setRepartition = null
-    if (tabNumber == 2) {
-      TaskRepartition = { ...leastRepartition }
+    if (tabNumber == '2') {
+      TaskRepartition = leastRepartition 
       setRepartition = setLeastRepartition
-    } else if (tabNumber == 3) {
-      TaskRepartition = { ...adjustedRepartition }
+    } else if (tabNumber == '3') {
+      TaskRepartition = adjustedRepartition
       setRepartition = setAdjustedRepartition
     } else {
       return
     }
-    const selectedPerson = (person == 'me' ? 'myTasks' : 'partnerTasks');
-    const anotherPerson = (person != 'me' ? 'myTasks' : 'partnerTasks');
+    const selectedPerson = (person == '私' ? 'myTasks' : 'partnerTasks');
+    const anotherPerson = (person != '私' ? 'myTasks' : 'partnerTasks');
     // add a task to the other person
     TaskRepartition[anotherPerson][taskName] = TaskRepartition[selectedPerson][taskName]
     // delete a task from selected person
     delete TaskRepartition[selectedPerson][taskName]
     setRepartition(TaskRepartition)
-  }
-
-  const test = () => {
-    changeRepartition('me', 'ゴミ出し', 2);
+    setHoge(hoge+1);
   }
 
   return (
     <TabContext value={tabNum}>
-      <Button onClick={test}>
-        hoge
-      </Button>
       <TabList onChange={handleChangeTab}>
         <Tab label="今の家事分担" value="1" />
         <Tab label="少しだけ変更" value="2" />
         <Tab label="全家事で理想的な分担" value="3" />
       </TabList>
       <TabPanel value="1" sx={{ width: 1}}>
-        <AllocationList head="私" data={currentAliceAllocation}></AllocationList>
-        <AllocationList head="パートナー" data={currentBobAllocation}></AllocationList>
+        <AllocationList
+          head="私"
+          data={currentAliceAllocation}
+          tabNumber="1"
+          repartition={changeRepartition}
+        />
+        <AllocationList
+          head="パートナー"
+          data={currentBobAllocation}
+          tabNumber="1"
+          repartition={changeRepartition}
+        />
         <ResultDashboard value={ currentTaskRepartition }></ResultDashboard>
       </TabPanel>
       <TabPanel value="2" sx={{ width: 1}}>
-      <AllocationList head="私" data={leastAliceAllocation}></AllocationList>
-        <AllocationList head="パートナー" data={leastBobAllocation}></AllocationList>
+        <AllocationList
+          head="私"
+          data={leastAliceAllocation}
+          tabNumber="2"
+          repartition={changeRepartition}
+        />
+        <AllocationList
+          head="パートナー"
+          data={leastBobAllocation}
+          tabNumber="2"
+          repartition={changeRepartition}
+        />
         <ResultDashboard value={ leastRepartition }></ResultDashboard>
       </TabPanel>
       <TabPanel value="3" sx={{ width: 1}}>
-      <AllocationList head="私" data={adjustedAliceAllocation}></AllocationList>
-        <AllocationList head="パートナー" data={adjustedBobAllocation}></AllocationList>
+        <AllocationList
+          head="私"
+          data={adjustedAliceAllocation}
+          tabNumber="3"
+          repartition={changeRepartition}
+        />
+        <AllocationList
+          head="パートナー"
+          data={adjustedBobAllocation}
+          tabNumber="3"
+          repartition={changeRepartition}
+        />
         <ResultDashboard value={ adjustedRepartition }></ResultDashboard>
       </TabPanel>
     </TabContext>
@@ -96,9 +120,9 @@ function makeBothAllocation(TaskRepartition, allTasks){
               const myTask1 = TaskRepartition['myTasks'][task.name];
               const partnerTask1 = TaskRepartition['partnerTasks'][task.name];
               if (myTask1 && myTask1.participates){
-                  aliceAllocation.push(task.name+" ");
+                  aliceAllocation.push(task.name);
               }else if (partnerTask1 && partnerTask1.participates){
-                  bobAllocation.push(task.name+" ");
+                  bobAllocation.push(task.name);
               }
           }
       }
