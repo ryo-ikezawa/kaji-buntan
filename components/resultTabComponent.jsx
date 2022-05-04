@@ -1,6 +1,6 @@
 import { TabContext, TabPanel, TabList } from "@mui/lab";
 import { Tab } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ResultDashboard from "./resultDashboard";
 import AllocationList from "./allocationList";
 import makeAliceBobUtility from "../src/mainAlgorithm";
@@ -11,10 +11,49 @@ export default function ResultTabComponent(props) {
     setTabNum(newValue);
   }
   const { currentTaskRepartition, allTasks, setTaskRepartition } = props;
-  let [adjustedWinnerTaskRepartition, leastChangeAllocationTaskRepartition] = makeAliceBobUtility(allTasks, currentTaskRepartition);
-  let [currentAliceAllocation, currentBobAllocation] = makeBothAllocation(currentTaskRepartition, allTasks);
-  let [adjustedWinnerAliceAllocation, adjustedWinnerBobAllocation] = makeBothAllocation(adjustedWinnerTaskRepartition, allTasks);
-  let [leastChangeAliceAllocation, leastChangeBobAllocation] = makeBothAllocation(leastChangeAllocationTaskRepartition, allTasks);
+  const [currentAliceAllocation, currentBobAllocation] = makeBothAllocation(currentTaskRepartition, allTasks);
+  // calculate initial state
+  const [adjustedWinnerTaskRepartition, leastChangeAllocationTaskRepartition] = makeAliceBobUtility(allTasks, currentTaskRepartition);
+  const [adjustedWinnerAliceAllocation, adjustedWinnerBobAllocation] = makeBothAllocation(adjustedWinnerTaskRepartition, allTasks);
+  const [leastChangeAliceAllocation, leastChangeBobAllocation] = makeBothAllocation(leastChangeAllocationTaskRepartition, allTasks);
+
+  const [adjustedRepartition, setAdjustedRepartition] = useState(adjustedWinnerTaskRepartition);
+  const [leastRepartition, setLeastRepartition] = useState(leastChangeAllocationTaskRepartition);
+  const [adjustedAliceAllocation, setAdjustedAliceAllocation] = useState(adjustedWinnerAliceAllocation);
+  const [adjustedBobAllocation, setAdjustedBobAllocation] = useState(adjustedWinnerBobAllocation);
+  const [leastAliceAllocation, setLeastAliceAllocation] = useState(leastChangeAliceAllocation);
+  const [leastBobAllocation, setLeastBobAllocation] = useState(leastChangeBobAllocation);
+
+  useEffect(() => {
+    const [adjustedWinnerAliceAllocation, adjustedWinnerBobAllocation] = makeBothAllocation(adjustedRepartition, allTasks);
+    const [leastChangeAliceAllocation, leastChangeBobAllocation] = makeBothAllocation(leastRepartition, allTasks);
+    setAdjustedAliceAllocation(adjustedWinnerAliceAllocation);
+    setAdjustedBobAllocation(adjustedWinnerBobAllocation);
+    setLeastAliceAllocation(leastChangeAliceAllocation);
+    setLeastBobAllocation(leastChangeBobAllocation);
+  }, [adjustedRepartition, currentTaskRepartition]);
+
+  const changeRepartition = (person, taskName, tabNumber) => {
+    let TaskRepartition = {}
+    let setRepartition = null
+    if (tabNumber == 2) {
+      TaskRepartition = leastRepartition
+      setRepartition = setLeastRepartition
+    } else if (tabNumber == 3) {
+      TaskRepartition = adjustedRepartition
+      setRepartition = setAdjustedRepartition
+    } else {
+      return
+    }
+    const selectedPerson = (person == 'me' ? 'myTasks' : 'partnerTasks');
+    const anotherPerson = (person != 'me' ? 'myTasks' : 'partnerTasks');
+    // add a task to the other person
+    TaskRepartition[anotherPerson][taskName] = TaskRepartition[selectedPerson][taskName]
+    // delete a task from selected person
+    delete TaskRepartition[selectedPerson][taskName]
+    setRepartition(TaskRepartition)
+  }
+
   return (
     <TabContext value={tabNum}>
       <TabList onChange={handleChangeTab}>
@@ -28,14 +67,14 @@ export default function ResultTabComponent(props) {
         <ResultDashboard value={ currentTaskRepartition }></ResultDashboard>
       </TabPanel>
       <TabPanel value="2" sx={{ width: 1}}>
-      <AllocationList head="私" data={leastChangeAliceAllocation}></AllocationList>
-        <AllocationList head="パートナー" data={leastChangeBobAllocation}></AllocationList>
-        <ResultDashboard value={ leastChangeAllocationTaskRepartition }></ResultDashboard>
+      <AllocationList head="私" data={leastAliceAllocation}></AllocationList>
+        <AllocationList head="パートナー" data={leastBobAllocation}></AllocationList>
+        <ResultDashboard value={ leastRepartition }></ResultDashboard>
       </TabPanel>
       <TabPanel value="3" sx={{ width: 1}}>
-      <AllocationList head="私" data={adjustedWinnerAliceAllocation}></AllocationList>
-        <AllocationList head="パートナー" data={adjustedWinnerBobAllocation}></AllocationList>
-        <ResultDashboard value={ adjustedWinnerTaskRepartition }></ResultDashboard>
+      <AllocationList head="私" data={adjustedAliceAllocation}></AllocationList>
+        <AllocationList head="パートナー" data={adjustedBobAllocation}></AllocationList>
+        <ResultDashboard value={ adjustedRepartition }></ResultDashboard>
       </TabPanel>
     </TabContext>
   )

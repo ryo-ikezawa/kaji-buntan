@@ -180,7 +180,6 @@ export default function InputPage() {
               <ResultTabComponent
                 currentTaskRepartition={ currentTaskRepartition }
                 allTasks={ allTasks }
-                setTaskRepartition={ setTaskRepartition }
               >
               </ResultTabComponent>
             </TabPanel>
