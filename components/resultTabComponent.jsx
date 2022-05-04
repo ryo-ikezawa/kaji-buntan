@@ -1,5 +1,5 @@
 import { TabContext, TabPanel, TabList } from "@mui/lab";
-import { Tab, Button } from "@mui/material";
+import { Tab } from "@mui/material";
 import { useState, useEffect } from "react";
 import ResultDashboard from "./resultDashboard";
 import AllocationList from "./allocationList";
