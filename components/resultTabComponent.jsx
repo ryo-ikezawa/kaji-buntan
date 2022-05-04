@@ -1,5 +1,5 @@
 import { TabContext, TabPanel, TabList } from "@mui/lab";
-import { Tab } from "@mui/material";
+import { Tab, Button } from "@mui/material";
 import { useState, useEffect } from "react";
 import ResultDashboard from "./resultDashboard";
 import AllocationList from "./allocationList";
@@ -37,10 +37,10 @@ export default function ResultTabComponent(props) {
     let TaskRepartition = {}
     let setRepartition = null
     if (tabNumber == 2) {
-      TaskRepartition = leastRepartition
+      TaskRepartition = { ...leastRepartition }
       setRepartition = setLeastRepartition
     } else if (tabNumber == 3) {
-      TaskRepartition = adjustedRepartition
+      TaskRepartition = { ...adjustedRepartition }
       setRepartition = setAdjustedRepartition
     } else {
       return
@@ -54,8 +54,15 @@ export default function ResultTabComponent(props) {
     setRepartition(TaskRepartition)
   }
 
+  const test = () => {
+    changeRepartition('me', 'ゴミ出し', 2);
+  }
+
   return (
     <TabContext value={tabNum}>
+      <Button onClick={test}>
+        hoge
+      </Button>
       <TabList onChange={handleChangeTab}>
         <Tab label="今の家事分担" value="1" />
         <Tab label="少しだけ変更" value="2" />
